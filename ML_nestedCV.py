@@ -48,6 +48,8 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import AdaBoostRegressor
 from scipy.cluster.hierarchy import dendrogram, linkage
 import shap
+from scipy import stats
+import json
 
 ###############################################################################
 # Load data
@@ -422,7 +424,8 @@ nested_cv_results = {
     'outer_fold': [],
     'mse': [],
     'mae': [],
-    'r2': []
+    'r2': [],
+    'best_params': []
 }
 
 # Store best models from each outer fold
@@ -449,15 +452,20 @@ for fold_idx, (train_idx, test_idx) in enumerate(outer_cv.split(X_train_selected
             param_grid=model_info['params'],
             cv=inner_cv,
             scoring='neg_mean_squared_error',
-            n_jobs=-1
+            n_jobs=-1,
+            return_train_score=True
         )
         
         # Fit on inner training data
         grid_search.fit(X_outer_train, y_outer_train)
         
-        # Get best model
+        # Get best model and parameters
         best_model = grid_search.best_estimator_
-        best_models_per_fold[fold_idx][model_name] = best_model
+        best_params = grid_search.best_params_
+        best_models_per_fold[fold_idx][model_name] = {
+            'model': best_model,
+            'params': best_params
+        }
         
         # Evaluate on outer test fold
         y_pred = best_model.predict(X_outer_test)
@@ -473,18 +481,72 @@ for fold_idx, (train_idx, test_idx) in enumerate(outer_cv.split(X_train_selected
         nested_cv_results['mse'].append(mse)
         nested_cv_results['mae'].append(mae)
         nested_cv_results['r2'].append(r2)
+        nested_cv_results['best_params'].append(json.dumps(best_params))
         
         print(f"    {model_name}: MSE={mse:.4f}, MAE={mae:.4f}, R²={r2:.4f}")
 
 # Convert results to DataFrame
 nested_cv_df = pd.DataFrame(nested_cv_results)
 
-# Calculate mean performance across outer folds for each model
-model_performance = nested_cv_df.groupby('model').agg({
-    'mse': ['mean', 'std'],
-    'mae': ['mean', 'std'],
-    'r2': ['mean', 'std']
-}).round(4)
+# Function to calculate confidence intervals
+def calculate_confidence_interval(data, confidence=0.95):
+    n = len(data)
+    mean = np.mean(data)
+    std_err = stats.sem(data)
+    h = std_err * stats.t.ppf((1 + confidence) / 2, n - 1)
+    return mean, mean - h, mean + h
+
+# Calculate performance metrics with confidence intervals for each model
+model_performance_summary = []
+
+for model_name in models.keys():
+    model_data = nested_cv_df[nested_cv_df['model'] == model_name]
+    if len(model_data) > 0:
+        # Calculate means and standard deviations
+        mse_mean = model_data['mse'].mean()
+        mse_std = model_data['mse'].std()
+        mae_mean = model_data['mae'].mean()
+        mae_std = model_data['mae'].std()
+        r2_mean = model_data['r2'].mean()
+        r2_std = model_data['r2'].std()
+        
+        # Calculate confidence intervals
+        mse_mean_ci, mse_lower_ci, mse_upper_ci = calculate_confidence_interval(model_data['mse'])
+        mae_mean_ci, mae_lower_ci, mae_upper_ci = calculate_confidence_interval(model_data['mae'])
+        r2_mean_ci, r2_lower_ci, r2_upper_ci = calculate_confidence_interval(model_data['r2'])
+        
+        # Get most frequent best parameters
+        model_params = model_data['best_params'].value_counts()
+        most_frequent_params = model_params.index[0] if len(model_params) > 0 else "No parameters"
+        
+        model_performance_summary.append({
+            'Model': model_name,
+            'MSE_Mean': mse_mean,
+            'MSE_Std': mse_std,
+            'MSE_CI_Lower': mse_lower_ci,
+            'MSE_CI_Upper': mse_upper_ci,
+            'MAE_Mean': mae_mean,
+            'MAE_Std': mae_std,
+            'MAE_CI_Lower': mae_lower_ci,
+            'MAE_CI_Upper': mae_upper_ci,
+            'R2_Mean': r2_mean,
+            'R2_Std': r2_std,
+            'R2_CI_Lower': r2_lower_ci,
+            'R2_CI_Upper': r2_upper_ci,
+            'Best_Parameters': most_frequent_params
+        })
+
+# Create performance summary DataFrame
+performance_df = pd.DataFrame(model_performance_summary)
+
+# Save performance metrics to CSV
+performance_df.to_csv('model_performance_metrics.csv', index=False)
+print("\nModel performance metrics saved to 'model_performance_metrics.csv'")
+
+# Save detailed nested CV results with hyperparameters
+detailed_results_df = nested_cv_df.copy()
+detailed_results_df.to_csv('nested_cv_detailed_results.csv', index=False)
+print("Detailed nested CV results saved to 'nested_cv_detailed_results.csv'")
 
 print("\nNested Cross Validation Results:")
 print("="*50)
@@ -515,7 +577,7 @@ print(f"\nTraining best model ({best_overall_model_name}) on full training set..
 best_model_folds = []
 for fold_idx in best_models_per_fold:
     if best_overall_model_name in best_models_per_fold[fold_idx]:
-        best_model_folds.append(best_models_per_fold[fold_idx][best_overall_model_name])
+        best_model_folds.append(best_models_per_fold[fold_idx][best_overall_model_name]['model'])
 
 # Use the model from the first fold as our final model (or you could ensemble them)
 final_best_model = best_model_folds[0]
