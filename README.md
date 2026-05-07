@@ -1,4 +1,4 @@
-# Subcortical U-Fiber Fractional Anisotropy is Associated with Working Memory Performance in Relapsing-Remitting Multiple Sclerosis: A Machine Learning Approach
+# Microstructural Changes in Subcortical White Matter Regions and their relationship with PASAT score in  Multiple Sclerosis: A Proof of Concept using Machine Learning
 
 This repository contains the **machine learning regression pipeline** for predicting working memory performance in Multiple Sclerosis using Fractional Anisotropy biomarkers from subcortical white matter regions.
 
