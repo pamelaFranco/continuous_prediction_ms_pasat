@@ -2,8 +2,6 @@
 
 This repository contains the **machine learning regression pipeline** for predicting working memory performance in Multiple Sclerosis using Fractional Anisotropy biomarkers from subcortical white matter regions.
 
-> **Fractional Anisotropy Biomarkers of Subcortical White Matter Predict Working Memory Impairment in Multiple Sclerosis: A Machine Learning Approach**
-
 The objective is to evaluate Fractional Anisotropy (FA) features from subcortical U-fiber regions for **continuous prediction of working memory performance** using PASAT scores in Relapsing-Remitting Multiple Sclerosis patients.
 
 ---
