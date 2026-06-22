@@ -97,12 +97,20 @@ python ML_nestedCV.py
 
 ---
 
-## License
+## Citation
 
-MIT License
+If you use this project, the data, or the methods described in your research, please cite the original paper:
+
+> **Montalba, C; Franco, P; Caulier-Cisterna, R; Cruz, JP; Cárcamo, C; Andia, ME; Ciampi, E.** (2026). *[Insert Full Article Title Here]*. Multiple Sclerosis and Related Disorders. Available at: [https://www.msard-journal.com/article/S2211-0348(26)00369-X/fulltext](https://www.msard-journal.com/article/S2211-0348(26)00369-X/fulltext)
 
 ---
 
 ## Acknowledgements
 
 This work is supported by the National Agency for Research and Development (ANID), project ICN2021_004 of the Millennium Science Initiative Program. Additional support provided by ANID through the project Fondecyt de Iniciación en Investigación 2025 Nº 11250867, and by the Competition for Research Regular Projects, year 2023, code LPR23-17, Universidad Tecnológica Metropolitana.
+
+---
+
+## License
+
+MIT License
