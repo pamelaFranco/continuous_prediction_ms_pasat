@@ -101,7 +101,7 @@ python ML_nestedCV.py
 
 If you use this project, the data, or the methods described in your research, please cite the original paper:
 
-> **Montalba, C; Franco, P; Caulier-Cisterna, R; Cruz, JP; Cárcamo, C; Andia, ME; Ciampi, E.** (2026). *[Insert Full Article Title Here]*. Multiple Sclerosis and Related Disorders. Available at: [https://www.msard-journal.com/article/S2211-0348(26)00369-X/fulltext](https://www.msard-journal.com/article/S2211-0348(26)00369-X/fulltext)
+> **Montalba, C; Franco, P; Caulier-Cisterna, R; Cruz, JP; Cárcamo, C; Andia, ME; Ciampi, E.** (2026). *Microstructural Changes in Subcortical White Matter Regions and their relationship with PASAT score in Multiple Sclerosis: A Proof of Concept using Machine Learning*. Multiple Sclerosis and Related Disorders. Available at: [https://www.msard-journal.com/article/S2211-0348(26)00369-X/fulltext](https://www.msard-journal.com/article/S2211-0348(26)00369-X/fulltext)
 
 ---
 
